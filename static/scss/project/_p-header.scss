@@ -1,0 +1,26 @@
+@use "../base/variable" as *;
+
+.p-header {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.p-header__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 3.5rem;
+}
+
+.p-header__title {
+  font-size: 24px;
+  font-weight: bold;
+  color: $color-primary;
+}
+
+.p-header__nav {
+  display: flex;
+  gap: 20px;
+}
+
+.p-header__nav-list {
+}
