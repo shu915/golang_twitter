@@ -1,0 +1,26 @@
+{{ define "auth/signup" }}
+{{ template "layout/header" . }}
+<div class="p-signup">
+  <div class="p-signup__inner l-inner">
+    <h1 class="p-signup__title">新規登録</h1>
+    <form action="/signup" method="post" class="p-signup__form">
+      <div class="p-signup__form-item">
+        <label for="email" class="p-signup__form-label">メールアドレス</label>
+        <input type="email" id="email" class="p-signup__form-input">
+      </div>
+      <div class="p-signup__form-item">
+        <label for="password" class="p-signup__form-label">パスワード</label>
+        <input type="password" id="password" class="p-signup__form-input">
+      </div>
+      <div class="p-signup__form-item">
+        <label for="password_confirmation" class="p-signup__form-label">パスワード（確認用）</label>
+        <input type="password" id="password_confirmation" class="p-signup__form-input">
+      </div>
+      <div class="p-signup__form-item">
+        <button type="submit" class="p-signup__form-button">新規登録</button>
+      </div>
+    </form>
+  </div>
+</div>
+{{ template "layout/footer" . }}
+{{ end }}

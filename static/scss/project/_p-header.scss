@@ -1,6 +1,14 @@
 @use "../base/variable" as *;
 
 .p-header {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.p-header__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 3.5rem;
 }
 
 .p-header__title {

@@ -49,6 +49,17 @@ address {
   padding: 0 16px;
 }
 
+.p-header {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.p-header__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 3.5rem;
+}
+
 .p-header__title {
   font-size: 24px;
   font-weight: bold;
@@ -58,4 +69,36 @@ address {
 .p-header__nav {
   display: flex;
   gap: 20px;
+}
+
+.p-signup {
+  padding: 2rem 0;
+}
+
+.p-signup__inner {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.p-signup__title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.p-signup__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.p-signup__form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.p-signup__form-label {
+  font-size: 0.875rem;
+  font-weight: bold;
 }
