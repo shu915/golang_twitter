@@ -1,9 +1,13 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	"golang_twitter/controllers"
 
-func InitRoutes(r *gin.Engine) {
+	"github.com/gin-gonic/gin"
+)
+
+func InitRoutes(r *gin.Engine, authController *controllers.AuthController) {
 	RegisterTopRoutes(r)
 	RegisterHealthRoutes(r)
-	RegisterAuthRoutes(r)
+	RegisterAuthRoutes(r, authController)
 }

@@ -1,9 +1,12 @@
 package main
 
 import (
-	"os"
+	"golang_twitter/controllers"
 	"golang_twitter/db"
+	query "golang_twitter/db/query"
 	"golang_twitter/routes"
+	"log"
+	"os"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -12,7 +15,19 @@ import (
 )
 
 func main() {
-	db.Init()
+	// DB接続を初期化
+	dbPool, err := db.Init()
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+	defer dbPool.Close()
+
+	// Queriesを初期化
+	queries := query.New(dbPool)
+
+	// AuthControllerを初期化
+	authController := controllers.NewAuthController(queries)
+
 	r := gin.Default()
 
 	// セッション設定（CSRFに必要）
@@ -30,7 +45,7 @@ func main() {
 
 	r.Static("/static", "./static")
 	r.LoadHTMLGlob("templates/**/*")
-	routes.InitRoutes(r)
+	routes.InitRoutes(r, authController)
 
 	r.Run()
 }

@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"golang_twitter/db"
 	query "golang_twitter/db/query"
 	"golang_twitter/dto"
 	"net/http"
@@ -12,13 +11,23 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func SignupPage(c *gin.Context) {
+// AuthController 構造体
+type AuthController struct {
+	queries *query.Queries
+}
+
+// NewAuthController コンストラクタ
+func NewAuthController(queries *query.Queries) *AuthController {
+	return &AuthController{queries: queries}
+}
+
+func (ac *AuthController) SignupPage(c *gin.Context) {
 	c.HTML(200, "auth/signup", gin.H{
 		"csrf_token": csrf.GetToken(c),
 	})
 }
 
-func Signup(c *gin.Context) {
+func (ac *AuthController) Signup(c *gin.Context) {
 	var req dto.SignupRequest
 
 	// HTMLフォームからのデータをバインド
@@ -41,8 +50,7 @@ func Signup(c *gin.Context) {
 	}
 
 	// Emailのユニーク制約チェック
-	queries := query.New(db.DB)
-	_, err := queries.GetUserByEmail(context.Background(), req.Email)
+	_, err := ac.queries.GetUserByEmail(context.Background(), req.Email)
 	if err == nil {
 		c.HTML(http.StatusBadRequest, "auth/signup", gin.H{
 			"errors": []dto.ValidationError{
@@ -63,8 +71,12 @@ func Signup(c *gin.Context) {
 		Email:    req.Email,
 		Password: string(hashedPassword),
 	}
-	queries.CreateUser(context.Background(), CreateUserParams)
+	ac.queries.CreateUser(context.Background(), CreateUserParams)
 
 	// 成功時は成功ページを表示
 	c.HTML(http.StatusOK, "auth/signup_success", gin.H{})
+}
+
+func (ac *AuthController) SignupSuccessPage(c *gin.Context) {
+	c.HTML(200, "auth/signup_success", gin.H{})
 }
