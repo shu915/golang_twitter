@@ -5,6 +5,9 @@
     <h1 class="p-signup__title">新規登録</h1>
 
     <form action="/signup" method="post" class="p-signup__form">
+      <!-- CSRF Token -->
+      <input type="hidden" name="_csrf" value="{{ .csrf_token }}">
+
       {{ range .errors }}
       {{ if eq .Field "email" }}
       <p class="p-signup__form-error">{{ .Message }}</p>
@@ -26,7 +29,7 @@
         <input type="password" id="password" class="p-signup__form-input" name="password">
 
       </div>
-  
+
       <div class="p-signup__form-item">
         <label for="password_confirmation" class="p-signup__form-label">パスワード（確認用）</label>
         <input type="password" id="password_confirmation" class="p-signup__form-input" name="password_confirmation">

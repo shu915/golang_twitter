@@ -8,11 +8,14 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	csrf "github.com/utrack/gin-csrf"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func SignupPage(c *gin.Context) {
-	c.HTML(200, "auth/signup", gin.H{})
+	c.HTML(200, "auth/signup", gin.H{
+		"csrf_token": csrf.GetToken(c),
+	})
 }
 
 func Signup(c *gin.Context) {
@@ -21,7 +24,8 @@ func Signup(c *gin.Context) {
 	// HTMLフォームからのデータをバインド
 	if err := c.ShouldBind(&req); err != nil {
 		c.HTML(http.StatusBadRequest, "auth/signup", gin.H{
-			"error": "リクエストの形式が正しくありません",
+			"error":      "リクエストの形式が正しくありません",
+			"csrf_token": csrf.GetToken(c),
 		})
 		return
 	}
@@ -29,8 +33,9 @@ func Signup(c *gin.Context) {
 	// DTOのカスタムバリデーションを使用
 	if validationErrors := req.Validate(); validationErrors != nil {
 		c.HTML(http.StatusBadRequest, "auth/signup", gin.H{
-			"errors": validationErrors,
-			"email":  req.Email, // 入力値を保持
+			"errors":     validationErrors,
+			"email":      req.Email, // 入力値を保持
+			"csrf_token": csrf.GetToken(c),
 		})
 		return
 	}
@@ -46,7 +51,8 @@ func Signup(c *gin.Context) {
 					Message: "このメールアドレスは既に使用されています",
 				},
 			},
-			"email": req.Email,
+			"email":      req.Email,
+			"csrf_token": csrf.GetToken(c),
 		})
 		return
 	}

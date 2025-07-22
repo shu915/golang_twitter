@@ -16,7 +16,7 @@ var DB *pgx.Conn
 func Init() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
+		log.Printf("Warning: .env file not found, using environment variables: %v", err)
 	}
 
 	DB_USER := os.Getenv("DB_USER")

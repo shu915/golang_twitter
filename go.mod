@@ -57,6 +57,7 @@ require (
 	github.com/cznic/mathutil v0.0.0-20181122101859-297441e03548 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dchest/uniuri v0.0.0-20160212164326-8902c56451e9 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.6.0 // indirect
 	github.com/edsrzf/mmap-go v0.0.0-20170320065105-0bce6a688712 // indirect
@@ -67,6 +68,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
+	github.com/gin-contrib/sessions v0.0.0-20190101140330-dc5246754963 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -93,6 +95,9 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.2 // indirect
+	github.com/gorilla/context v1.1.1 // indirect
+	github.com/gorilla/securecookie v1.1.1 // indirect
+	github.com/gorilla/sessions v1.2.1 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/hailocab/go-hostpool v0.0.0-20160125115350-e80d13ce29ed // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -162,6 +167,7 @@ require (
 	github.com/tetratelabs/wazero v1.9.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
+	github.com/utrack/gin-csrf v0.0.0-20190424104817-40fb8d2c8fca // indirect
 	github.com/wasilibs/go-pgquery v0.0.0-20250409022910-10ac41983c07 // indirect
 	github.com/wasilibs/wazero-helpers v0.0.0-20240620070341-3dff1577cd52 // indirect
 	github.com/xanzy/go-gitlab v0.15.0 // indirect
