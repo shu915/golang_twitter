@@ -102,3 +102,9 @@ address {
   font-size: 0.875rem;
   font-weight: bold;
 }
+
+.p-signup__form-error {
+  color: red;
+  font-size: 0.875rem;
+  font-weight: bold;
+}
