@@ -21,7 +21,7 @@ func main() {
 
 	// CSRF保護ミドルウェア
 	r.Use(csrf.Middleware(csrf.Options{
-		Secret: "secret-csrf-key-change-in-production",
+		Secret: os.Getenv("CSRF_SECRET"),
 		ErrorFunc: func(c *gin.Context) {
 			c.String(400, "CSRF token mismatch")
 			c.Abort()
