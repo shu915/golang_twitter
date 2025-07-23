@@ -2,32 +2,24 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	query "golang_twitter/db/query"
 	"golang_twitter/dto"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 	csrf "github.com/utrack/gin-csrf"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// AuthController 構造体
-type AuthController struct {
-	queries *query.Queries
-}
-
-// NewAuthController コンストラクタ
-func NewAuthController(queries *query.Queries) *AuthController {
-	return &AuthController{queries: queries}
-}
-
-func (ac *AuthController) SignupPage(c *gin.Context) {
+func (s *Server) SignupPage(c *gin.Context) {
 	c.HTML(200, "auth/signup", gin.H{
 		"csrf_token": csrf.GetToken(c),
 	})
 }
 
-func (ac *AuthController) Signup(c *gin.Context) {
+func (s *Server) Signup(c *gin.Context) {
 	var req dto.SignupRequest
 
 	// HTMLフォームからのデータをバインド
@@ -50,7 +42,7 @@ func (ac *AuthController) Signup(c *gin.Context) {
 	}
 
 	// Emailのユニーク制約チェック
-	_, err := ac.queries.GetUserByEmail(context.Background(), req.Email)
+	_, err := s.Queries.GetUserByEmail(context.Background(), req.Email)
 	if err == nil {
 		c.HTML(http.StatusBadRequest, "auth/signup", gin.H{
 			"errors": []dto.ValidationError{
@@ -65,18 +57,33 @@ func (ac *AuthController) Signup(c *gin.Context) {
 		return
 	}
 
+	if !errors.Is(err, pgx.ErrNoRows) {
+    // ErrNoRows じゃないエラー → つまり「異常なDBエラー」と判断
+    c.AbortWithStatus(http.StatusInternalServerError)
+    return
+}
+
 	// パスワードのハッシュ化
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+    c.AbortWithStatus(http.StatusInternalServerError)
+    return
+}
 	CreateUserParams := query.CreateUserParams{
 		Email:    req.Email,
 		Password: string(hashedPassword),
 	}
-	ac.queries.CreateUser(context.Background(), CreateUserParams)
+
+	_, err = s.Queries.CreateUser(context.Background(), CreateUserParams)
+	if err != nil {
+    c.AbortWithStatus(http.StatusInternalServerError)
+    return
+}
 
 	// 成功時は成功ページを表示
 	c.HTML(http.StatusOK, "auth/signup_success", gin.H{})
 }
 
-func (ac *AuthController) SignupSuccessPage(c *gin.Context) {
+func (s *Server) SignupSuccessPage(c *gin.Context) {
 	c.HTML(200, "auth/signup_success", gin.H{})
 }
