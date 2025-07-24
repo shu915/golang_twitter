@@ -4,6 +4,7 @@ import (
 	"golang_twitter/controllers"
 	"golang_twitter/db"
 	query "golang_twitter/db/query"
+	"golang_twitter/routes"
 	"log"
 	"os"
 
@@ -36,12 +37,7 @@ func main() {
 	server.Router.Static("/static", "./static")
 	server.Router.LoadHTMLGlob("templates/**/*")
 
-	server.Router.GET("/", controllers.Home)
-	server.Router.GET("/healthcheck", controllers.HealthCheck)
-	server.Router.GET("/signup", server.SignupPage)
-	server.Router.POST("/signup", server.Signup)
-	server.Router.GET("/signup_success", server.SignupSuccessPage)
+	routes.RegisterRoutes(server.Router, server)
 
-	// サーバーを起動
 	server.Router.Run()
 }
