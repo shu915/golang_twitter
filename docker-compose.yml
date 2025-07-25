@@ -6,12 +6,12 @@ services:
       target: development
     ports:
       - "8080:8080"
-    # environment:
-      # - DB_HOST=${DB_HOST}
-      # - DB_PORT=3306
-      # - DB_USER=${DB_USER}
-      # - DB_PASSWORD=${DB_PASSWORD}
-      # - DB_NAME=${DB_NAME}
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - CSRF_SECRET=${CSRF_SECRET}
     volumes:
       - .:/app
       - /app/tmp

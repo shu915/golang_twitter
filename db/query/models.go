@@ -12,5 +12,6 @@ type User struct {
 	ID        int32              `json:"id"`
 	Email     string             `json:"email"`
 	Password  string             `json:"password"`
+	IsActive  pgtype.Bool        `json:"is_active"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
