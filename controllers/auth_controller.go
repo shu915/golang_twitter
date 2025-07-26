@@ -84,7 +84,7 @@ func (s *Server) Signup(c *gin.Context) {
 		Token: pgtype.Text{String: token, Valid: true},
 	}
 
-	_, err = s.Queries.CreateUser(context.Background(), CreateUserParams)
+	_, err = s.Queries.CreateUser(c.Request.Context(), CreateUserParams)
 	if err != nil {
     c.AbortWithStatus(http.StatusInternalServerError)
     return
@@ -113,7 +113,7 @@ func (s *Server) Activate(c *gin.Context) {
 		return
 	}
 
-	_, err := s.Queries.GetUserByToken(context.Background(), pgtype.Text{String: token, Valid: true})
+	_, err := s.Queries.GetUserByToken(c.Request.Context(), pgtype.Text{String: token, Valid: true})
 	if err != nil {
 		c.HTML(http.StatusBadRequest, "auth/activate_error", gin.H{
 			"error": "トークンが無効です",
@@ -121,10 +121,12 @@ func (s *Server) Activate(c *gin.Context) {
 		return
 	}
 
-	s.Queries.UpdateUserIsActive(context.Background(), query.UpdateUserIsActiveParams{
+	s.Queries.UpdateUserIsActive(c.Request.Context(), query.UpdateUserIsActiveParams{
 		IsActive: pgtype.Bool{Bool: true, Valid: true},
 		Token: pgtype.Text{String: token, Valid: true},
 	})
+
+	
 
 	c.HTML(http.StatusOK, "auth/activate_success", gin.H{})
 }

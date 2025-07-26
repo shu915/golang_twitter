@@ -74,7 +74,7 @@ func (q *Queries) GetUserByToken(ctx context.Context, token pgtype.Text) (User, 
 }
 
 const updateUserIsActive = `-- name: UpdateUserIsActive :exec
-UPDATE users SET is_active = $1 WHERE token = $2
+UPDATE users SET is_active = $1,token = NULL WHERE token = $2
 `
 
 type UpdateUserIsActiveParams struct {
