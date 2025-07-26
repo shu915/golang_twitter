@@ -7,6 +7,7 @@ import (
 	"golang_twitter/dto"
 	"golang_twitter/services"
 	"golang_twitter/utils"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -61,7 +62,7 @@ func (s *Server) Signup(c *gin.Context) {
 	}
 
 	if !errors.Is(err, pgx.ErrNoRows) {
-    // ErrNoRows じゃないエラー → つまり「異常なDBエラー」と判断
+		log.Printf("DBエラー: %v", err)
     c.AbortWithStatus(http.StatusInternalServerError)
     return
 }
@@ -69,12 +70,14 @@ func (s *Server) Signup(c *gin.Context) {
 	// パスワードのハッシュ化
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
+		log.Printf("パスワードのハッシュ化エラー: %v", err)
     c.AbortWithStatus(http.StatusInternalServerError)
     return
 }
 
 	token, err := utils.GenerateToken(32)
 	if err != nil {
+		log.Printf("トークンの生成エラー: %v", err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -86,12 +89,14 @@ func (s *Server) Signup(c *gin.Context) {
 
 	_, err = s.Queries.CreateUser(c.Request.Context(), CreateUserParams)
 	if err != nil {
+		log.Printf("ユーザーの作成エラー: %v", err)
     c.AbortWithStatus(http.StatusInternalServerError)
     return
 }
 
 	err = services.SendActivationEmail(req.Email, token)
 	if err != nil {
+		log.Printf("メールの送信エラー: %v", err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -126,7 +131,7 @@ func (s *Server) Activate(c *gin.Context) {
 		Token: pgtype.Text{String: token, Valid: true},
 	})
 
-	
+
 
 	c.HTML(http.StatusOK, "auth/activate_success", gin.H{})
 }
