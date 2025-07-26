@@ -55,6 +55,24 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	return i, err
 }
 
+const getUserByToken = `-- name: GetUserByToken :one
+SELECT id, email, password, token, is_active, created_at FROM users WHERE token = $1
+`
+
+func (q *Queries) GetUserByToken(ctx context.Context, token pgtype.Text) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByToken, token)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Password,
+		&i.Token,
+		&i.IsActive,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const updateUserIsActive = `-- name: UpdateUserIsActive :exec
 UPDATE users SET is_active = $1 WHERE token = $2
 `

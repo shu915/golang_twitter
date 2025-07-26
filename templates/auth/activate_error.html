@@ -1,0 +1,9 @@
+{{ define "auth/activate_error" }}
+{{ template "layout/header" . }}
+<div class="p-activate"></div>
+  <div class="p-activate__inner l-inner">
+    <h1 class="p-activate__title">{{ .error }}</h1>
+  </div>
+</div>
+{{ template "layout/footer" . }}
+{{ end }}

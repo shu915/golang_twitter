@@ -106,6 +106,20 @@ func (s *Server) SignupSuccessPage(c *gin.Context) {
 
 func (s *Server) Activate(c *gin.Context) {
 	token := c.Query("token")
+	if token == "" {
+		c.HTML(http.StatusBadRequest, "auth/activate_error", gin.H{
+			"error": "トークンが無効です",
+		})
+		return
+	}
+
+	_, err := s.Queries.GetUserByToken(context.Background(), pgtype.Text{String: token, Valid: true})
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "auth/activate_error", gin.H{
+			"error": "トークンが無効です",
+		})
+		return
+	}
 
 	s.Queries.UpdateUserIsActive(context.Background(), query.UpdateUserIsActiveParams{
 		IsActive: pgtype.Bool{Bool: true, Valid: true},
@@ -117,4 +131,8 @@ func (s *Server) Activate(c *gin.Context) {
 
 func (s *Server) ActivateSuccessPage(c *gin.Context) {
 	c.HTML(200, "auth/activate_success", gin.H{})
+}
+
+func (s *Server) ActivateErrorPage(c *gin.Context) {
+	c.HTML(200, "auth/activate_error", gin.H{})
 }
