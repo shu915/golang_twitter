@@ -7,26 +7,30 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (email, password)
-VALUES ($1, $2)
-RETURNING id, email, password, is_active, created_at
+INSERT INTO users (email, password, token)
+VALUES ($1, $2, $3)
+RETURNING id, email, password, token, is_active, created_at
 `
 
 type CreateUserParams struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string      `json:"email"`
+	Password string      `json:"password"`
+	Token    pgtype.Text `json:"token"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, createUser, arg.Email, arg.Password)
+	row := q.db.QueryRow(ctx, createUser, arg.Email, arg.Password, arg.Token)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
 		&i.Password,
+		&i.Token,
 		&i.IsActive,
 		&i.CreatedAt,
 	)
@@ -34,7 +38,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, password, is_active, created_at FROM users WHERE email = $1
+SELECT id, email, password, token, is_active, created_at FROM users WHERE email = $1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -44,8 +48,23 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.ID,
 		&i.Email,
 		&i.Password,
+		&i.Token,
 		&i.IsActive,
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const updateUserIsActive = `-- name: UpdateUserIsActive :exec
+UPDATE users SET is_active = $1 WHERE token = $2
+`
+
+type UpdateUserIsActiveParams struct {
+	IsActive pgtype.Bool `json:"is_active"`
+	Token    pgtype.Text `json:"token"`
+}
+
+func (q *Queries) UpdateUserIsActive(ctx context.Context, arg UpdateUserIsActiveParams) error {
+	_, err := q.db.Exec(ctx, updateUserIsActive, arg.IsActive, arg.Token)
+	return err
 }

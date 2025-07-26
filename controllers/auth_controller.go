@@ -5,9 +5,12 @@ import (
 	"errors"
 	query "golang_twitter/db/query"
 	"golang_twitter/dto"
+	"golang_twitter/services"
+	"golang_twitter/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5"
 	csrf "github.com/utrack/gin-csrf"
 	"golang.org/x/crypto/bcrypt"
@@ -69,9 +72,16 @@ func (s *Server) Signup(c *gin.Context) {
     c.AbortWithStatus(http.StatusInternalServerError)
     return
 }
+
+	token, err := utils.GenerateToken(32)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 	CreateUserParams := query.CreateUserParams{
 		Email:    req.Email,
 		Password: string(hashedPassword),
+		Token: pgtype.Text{String: token, Valid: true},
 	}
 
 	_, err = s.Queries.CreateUser(context.Background(), CreateUserParams)
@@ -80,10 +90,31 @@ func (s *Server) Signup(c *gin.Context) {
     return
 }
 
+	err = services.SendActivationEmail(req.Email, token)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
 	// 成功時は成功ページを表示
 	c.HTML(http.StatusOK, "auth/signup_success", gin.H{})
 }
 
 func (s *Server) SignupSuccessPage(c *gin.Context) {
 	c.HTML(200, "auth/signup_success", gin.H{})
+}
+
+func (s *Server) Activate(c *gin.Context) {
+	token := c.Query("token")
+
+	s.Queries.UpdateUserIsActive(context.Background(), query.UpdateUserIsActiveParams{
+		IsActive: pgtype.Bool{Bool: true, Valid: true},
+		Token: pgtype.Text{String: token, Valid: true},
+	})
+
+	c.HTML(http.StatusOK, "auth/activate_success", gin.H{})
+}
+
+func (s *Server) ActivateSuccessPage(c *gin.Context) {
+	c.HTML(200, "auth/activate_success", gin.H{})
 }
