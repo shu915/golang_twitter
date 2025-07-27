@@ -1,0 +1,11 @@
+{{ define "auth/activate_success" }}
+{{ template "layout/header" . }}
+<div class="p-activate"></div>
+  <div class="p-activate__inner l-inner">
+    <h1 class="p-activate__title">アカウント有効化が完了しました</h1>
+    <p>ログインしてください</p>
+    <a href="/login">ログイン</a>
+  </div>
+</div>
+{{ template "layout/footer" . }}
+{{ end }}

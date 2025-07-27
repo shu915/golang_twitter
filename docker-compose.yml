@@ -27,15 +27,19 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+
   sass:
     image: node:18-alpine
     working_dir: /app
     volumes:
       - .:/app
-      - sass_node_modules:/app/node_modules
     command: sh -c "npm install && npm run watch:css"
 
-
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
 
 volumes:
   sass_node_modules:
