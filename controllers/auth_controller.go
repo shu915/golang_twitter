@@ -154,7 +154,7 @@ func (s *Server) Login(c *gin.Context) {
 	var req validation.LoginRequest
 
 	if err := c.ShouldBind(&req); err != nil {
-		c.HTML(http.StatusUnauthorized, "auth/login", gin.H{
+		c.HTML(http.StatusBadRequest, "auth/login", gin.H{
 			"error":      "リクエストの形式が正しくありません",
 			"csrf_token": csrf.GetToken(c),
 			"email":      req.Email,
@@ -163,7 +163,7 @@ func (s *Server) Login(c *gin.Context) {
 	}
 
 	if validationErrors := req.Validate(); validationErrors != nil {
-		c.HTML(http.StatusUnauthorized, "auth/login", gin.H{
+		c.HTML(http.StatusBadRequest, "auth/login", gin.H{
 			"errors":     validationErrors,
 			"csrf_token": csrf.GetToken(c),
 			"email":      req.Email,
@@ -222,13 +222,21 @@ func (s *Server) Login(c *gin.Context) {
 		return
 	}
 
-	c.HTML(200, "home/index", gin.H{
-		"csrf_token": csrf.GetToken(c),
-	})
+	c.Redirect(http.StatusFound, "/index")
 }
 
 func (s *Server) Logout(c *gin.Context) {
+	sessionID, err := c.Cookie("session_id")
+	if err != nil {
+		c.Redirect(http.StatusFound, "/login")
+		return
+	}
 	c.SetCookie("session_id", "", -1, "/", "", false, true)
-	s.RedisClient.Del(c.Request.Context(), c.GetHeader("session_id"))
+	err = s.RedisClient.Del(c.Request.Context(), sessionID).Err()
+	if err != nil {
+		log.Printf("Redis削除エラー: %v", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 	c.Redirect(http.StatusFound, "/login")
 }
