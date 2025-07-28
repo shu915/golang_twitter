@@ -71,40 +71,41 @@ address {
   gap: 20px;
 }
 
-.p-signup {
-  padding: 2rem 0;
+.p-header__nav-list {
+  display: flex;
+  gap: 20px;
 }
 
-.p-signup__inner {
+.p-auth-form__inner {
   max-width: 400px;
   margin: 0 auto;
+  padding-top: 1rem;
 }
 
-.p-signup__title {
+.p-auth-form__title {
   font-size: 1.5rem;
   font-weight: bold;
   text-align: center;
 }
 
-.p-signup__form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.p-signup__form-item {
+.p-auth-form__form-item {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
-.p-signup__form-label {
+.p-auth-form__form-label {
   font-size: 0.875rem;
   font-weight: bold;
 }
 
-.p-signup__form-error {
+.p-auth-form__form-error {
   color: red;
   font-size: 0.875rem;
   font-weight: bold;
+}
+
+.p-auth-form__form-button {
+  width: 100%;
+  margin-top: 1rem;
 }

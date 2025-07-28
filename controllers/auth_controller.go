@@ -4,15 +4,17 @@ import (
 	"context"
 	"errors"
 	query "golang_twitter/db/query"
-	"golang_twitter/dto"
 	"golang_twitter/services"
 	"golang_twitter/utils"
+	"golang_twitter/validation"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	csrf "github.com/utrack/gin-csrf"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -24,7 +26,7 @@ func (s *Server) SignupPage(c *gin.Context) {
 }
 
 func (s *Server) Signup(c *gin.Context) {
-	var req dto.SignupRequest
+	var req validation.SignupRequest
 
 	// HTMLフォームからのデータをバインド
 	if err := c.ShouldBind(&req); err != nil {
@@ -49,7 +51,7 @@ func (s *Server) Signup(c *gin.Context) {
 	_, err := s.Queries.GetUserByEmail(context.Background(), req.Email)
 	if err == nil {
 		c.HTML(http.StatusBadRequest, "auth/signup", gin.H{
-			"errors": []dto.ValidationError{
+			"errors": []validation.ValidationError{
 				{
 					Field:   "email",
 					Message: "このメールアドレスは既に使用されています",
@@ -63,17 +65,17 @@ func (s *Server) Signup(c *gin.Context) {
 
 	if !errors.Is(err, pgx.ErrNoRows) {
 		log.Printf("DBエラー: %v", err)
-    c.AbortWithStatus(http.StatusInternalServerError)
-    return
-}
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
 	// パスワードのハッシュ化
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Printf("パスワードのハッシュ化エラー: %v", err)
-    c.AbortWithStatus(http.StatusInternalServerError)
-    return
-}
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
 	token, err := utils.GenerateToken(32)
 	if err != nil {
@@ -84,15 +86,15 @@ func (s *Server) Signup(c *gin.Context) {
 	CreateUserParams := query.CreateUserParams{
 		Email:    req.Email,
 		Password: string(hashedPassword),
-		Token: pgtype.Text{String: token, Valid: true},
+		Token:    pgtype.Text{String: token, Valid: true},
 	}
 
 	_, err = s.Queries.CreateUser(c.Request.Context(), CreateUserParams)
 	if err != nil {
 		log.Printf("ユーザーの作成エラー: %v", err)
-    c.AbortWithStatus(http.StatusInternalServerError)
-    return
-}
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
 	err = services.SendActivationEmail(req.Email, token)
 	if err != nil {
@@ -128,10 +130,8 @@ func (s *Server) Activate(c *gin.Context) {
 
 	s.Queries.UpdateUserIsActive(c.Request.Context(), query.UpdateUserIsActiveParams{
 		IsActive: pgtype.Bool{Bool: true, Valid: true},
-		Token: pgtype.Text{String: token, Valid: true},
+		Token:    pgtype.Text{String: token, Valid: true},
 	})
-
-
 
 	c.HTML(http.StatusOK, "auth/activate_success", gin.H{})
 }
@@ -142,4 +142,93 @@ func (s *Server) ActivateSuccessPage(c *gin.Context) {
 
 func (s *Server) ActivateErrorPage(c *gin.Context) {
 	c.HTML(200, "auth/activate_error", gin.H{})
+}
+
+func (s *Server) LoginPage(c *gin.Context) {
+	c.HTML(200, "auth/login", gin.H{
+		"csrf_token": csrf.GetToken(c),
+	})
+}
+
+func (s *Server) Login(c *gin.Context) {
+	var req validation.LoginRequest
+
+	if err := c.ShouldBind(&req); err != nil {
+		c.HTML(http.StatusBadRequest, "auth/login", gin.H{
+			"error":      "リクエストの形式が正しくありません",
+			"csrf_token": csrf.GetToken(c),
+			"email":      req.Email,
+		})
+		return
+	}
+
+	if validationErrors := req.Validate(); validationErrors != nil {
+		c.HTML(http.StatusBadRequest, "auth/login", gin.H{
+			"errors":     validationErrors,
+			"csrf_token": csrf.GetToken(c),
+			"email":      req.Email,
+		})
+		return
+	}
+
+	user, err := s.Queries.GetUserByEmail(c.Request.Context(), req.Email)
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "auth/login", gin.H{
+			"errors": []validation.ValidationError{
+				{
+					Field:   "email",
+					Message: "メールアドレスまたはパスワードが間違っています",
+				},
+			},
+			"csrf_token": csrf.GetToken(c),
+			"email":      req.Email,
+		})
+		return
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+		c.HTML(http.StatusBadRequest, "auth/login", gin.H{
+			"errors": []validation.ValidationError{
+				{
+					Field:   "email",
+					Message: "メールアドレスまたはパスワードが間違っています",
+				},
+			},
+			"csrf_token": csrf.GetToken(c),
+			"email":      req.Email,
+		})
+		return
+	}
+	if !user.IsActive.Bool {
+		c.HTML(http.StatusBadRequest, "auth/login", gin.H{
+			"errors": []validation.ValidationError{
+				{
+					Field:   "email",
+					Message: "アクティベーションしてください",
+				},
+			},
+			"csrf_token": csrf.GetToken(c),
+			"email":      req.Email,
+		})
+		return
+	}
+
+	uuid := uuid.New().String()
+
+	c.SetCookie("session_id", uuid, 360000, "/", "", false, true)
+	err = s.RedisClient.Set(c.Request.Context(), uuid, user.ID, 3600*time.Second).Err()
+	if err != nil {
+		log.Printf("Redisセットエラー: %v", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.HTML(200, "home/index", gin.H{
+		"csrf_token": csrf.GetToken(c),
+	})
+}
+
+func (s *Server) Logout(c *gin.Context) {
+	c.SetCookie("session_id", "", -1, "/", "", false, true)
+	s.RedisClient.Del(c.Request.Context(), c.GetHeader("session_id"))
+	c.Redirect(http.StatusFound, "/login")
 }

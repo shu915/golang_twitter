@@ -1,10 +1,10 @@
-{{ define "auth/signup" }}
+{{ define "auth/login" }}
 {{ template "layout/header" . }}
-<div class="p-signup">
+<div class="p-login">
   <div class="p-auth-form__inner l-inner">
-    <h1 class="p-auth-form__title">新規登録</h1>
+    <h1 class="p-auth-form__title">ログイン</h1>
 
-    <form action="/signup" method="post" class="p-auth-form__form">
+    <form action="/login" method="post" class="p-auth-form__form">
       <!-- CSRF Token -->
       <input type="hidden" name="_csrf" value="{{ .csrf_token }}">
 
@@ -30,12 +30,8 @@
 
       </div>
 
-      <div class="p-auth-form__form-item">
-        <label for="password_confirmation" class="p-auth-form__form-label">パスワード（確認用）</label>
-        <input type="password" id="password_confirmation" class="p-auth-form__form-input" name="password_confirmation">
-      </div>
-      <div class="p-auth-form__form-item">
-        <button type="submit" class="p-auth-form__form-button">新規登録</button>
+      <div class="p-login__form-item">
+        <button type="submit" class="p-auth-form__form-button">ログイン</button>
       </div>
     </form>
   </div>

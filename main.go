@@ -5,7 +5,6 @@ import (
 	"golang_twitter/db"
 	query "golang_twitter/db/query"
 	"golang_twitter/routes"
-	"log"
 	"os"
 
 	"github.com/gin-contrib/sessions"
@@ -15,14 +14,14 @@ import (
 )
 
 func main() {
-	dbPool, err := db.Init()
-	if err != nil {
-		log.Fatalf("DB init error: %v", err)
-	}
+	dbPool := db.InitPostgres()
 	defer dbPool.Close()
 
+	redisClient := db.InitRedis()
+	defer redisClient.Close()
+
 	queries := query.New(dbPool)
-	server := controllers.NewServer(queries) // ここでServer構造体を使う
+	server := controllers.NewServer(queries, redisClient) // ここでServer構造体を使う
 
 	store := cookie.NewStore([]byte(os.Getenv("CSRF_SECRET")))
 	server.Router.Use(sessions.Sessions("mysession", store))

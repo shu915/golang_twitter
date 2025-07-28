@@ -1,4 +1,4 @@
-package dto
+package validation
 
 import (
 	"fmt"
@@ -19,6 +19,27 @@ type ValidationError struct {
 	Message string `json:"message"`
 }
 
+type LoginRequest struct {
+	Email    string `validate:"required,email,max=255" form:"email"`
+	Password string `validate:"required,min=8,max=255" form:"password"`
+}
+
+func handleBasicValidation(req interface{}) []ValidationError {
+	var errors []ValidationError
+
+	err := validate.Struct(req)
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			field := strings.ToLower(err.Field())
+			message := getErrorMessage(err)
+			errors = append(errors, ValidationError{
+				Field:   field,
+				Message: message,
+			})
+		}
+	}
+	return errors
+}
 var validate *validator.Validate
 
 func init() {
@@ -30,17 +51,7 @@ func (s *SignupRequest) Validate() []ValidationError {
 	var errors []ValidationError
 
 	// 基本バリデーション
-	err := validate.Struct(s)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			field := strings.ToLower(err.Field())
-			message := getErrorMessage(err)
-			errors = append(errors, ValidationError{
-				Field:   field,
-				Message: message,
-			})
-		}
-	}
+	errors = handleBasicValidation(s)
 
 	// カスタムパスワードバリデーション
 	if s.Password != "" { // パスワードが空でない場合のみチェック
@@ -90,6 +101,15 @@ func validatePasswordComplexity(password string) []ValidationError {
 		})
 	}
 
+	return errors
+}
+
+func (l *LoginRequest) Validate() []ValidationError {
+	errors := handleBasicValidation(l)
+
+	if len(errors) == 0 {
+		return nil
+	}
 	return errors
 }
 
