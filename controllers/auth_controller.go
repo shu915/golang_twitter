@@ -154,7 +154,7 @@ func (s *Server) Login(c *gin.Context) {
 	var req validation.LoginRequest
 
 	if err := c.ShouldBind(&req); err != nil {
-		c.HTML(http.StatusBadRequest, "auth/login", gin.H{
+		c.HTML(http.StatusUnauthorized, "auth/login", gin.H{
 			"error":      "リクエストの形式が正しくありません",
 			"csrf_token": csrf.GetToken(c),
 			"email":      req.Email,
@@ -163,7 +163,7 @@ func (s *Server) Login(c *gin.Context) {
 	}
 
 	if validationErrors := req.Validate(); validationErrors != nil {
-		c.HTML(http.StatusBadRequest, "auth/login", gin.H{
+		c.HTML(http.StatusUnauthorized, "auth/login", gin.H{
 			"errors":     validationErrors,
 			"csrf_token": csrf.GetToken(c),
 			"email":      req.Email,
@@ -173,7 +173,7 @@ func (s *Server) Login(c *gin.Context) {
 
 	user, err := s.Queries.GetUserByEmail(c.Request.Context(), req.Email)
 	if err != nil {
-		c.HTML(http.StatusBadRequest, "auth/login", gin.H{
+		c.HTML(http.StatusUnauthorized, "auth/login", gin.H{
 			"errors": []validation.ValidationError{
 				{
 					Field:   "email",
@@ -186,7 +186,7 @@ func (s *Server) Login(c *gin.Context) {
 		return
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		c.HTML(http.StatusBadRequest, "auth/login", gin.H{
+		c.HTML(http.StatusUnauthorized, "auth/login", gin.H{
 			"errors": []validation.ValidationError{
 				{
 					Field:   "email",
@@ -199,7 +199,7 @@ func (s *Server) Login(c *gin.Context) {
 		return
 	}
 	if !user.IsActive.Bool {
-		c.HTML(http.StatusBadRequest, "auth/login", gin.H{
+		c.HTML(http.StatusUnauthorized, "auth/login", gin.H{
 			"errors": []validation.ValidationError{
 				{
 					Field:   "email",
