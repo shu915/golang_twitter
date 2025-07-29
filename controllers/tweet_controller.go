@@ -26,6 +26,7 @@ func (s *Server) PostTweets(c *gin.Context) {
 			c.HTML(http.StatusBadRequest, "home/index", gin.H{
 				"csrf_token": csrf.GetToken(c),
 				"errors": errors,
+				"isAuthenticated": true,
 			})
 			return
 		}
