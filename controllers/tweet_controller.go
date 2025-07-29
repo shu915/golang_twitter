@@ -3,7 +3,6 @@ package controllers
 import (
 	query "golang_twitter/db/query"
 	validation "golang_twitter/validation"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -15,15 +14,21 @@ func (s *Server) PostTweets(c *gin.Context) {
 	var tweetRequest validation.TweetRequest
 
 	if err := c.ShouldBind(&tweetRequest); err != nil {
+		c.HTML(http.StatusBadRequest, "home/index", gin.H{
+			"csrf_token": csrf.GetToken(c),
+			"errors":     map[string]string{"general": "リクエストの形式が正しくありません"},
+		})
+		return
+		}
+		
 		errors := tweetRequest.Validate()
 		if len(errors) > 0 {
-			c.HTML(200, "home/index", gin.H{
+			c.HTML(http.StatusBadRequest, "home/index", gin.H{
 				"csrf_token": csrf.GetToken(c),
 				"errors":     errors,
 			})
 			return
 		}
-	}
 
 	userIDStr, ok := c.Get("userID")
 	if !ok {
@@ -42,7 +47,7 @@ func (s *Server) PostTweets(c *gin.Context) {
 	})
 
 	if err != nil {
-		log.Printf("Failed to create post: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create post"})
 		return
 	}
 
