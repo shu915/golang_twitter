@@ -4,6 +4,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -11,7 +12,7 @@ import (
 )
 
 
-func Init() (*pgxpool.Pool, error) {
+func InitPostgres() *pgxpool.Pool {
 	_ = godotenv.Load()
 
 	DB_USER := os.Getenv("DB_USER")
@@ -22,13 +23,13 @@ func Init() (*pgxpool.Pool, error) {
 
 	DB, err := pgxpool.New(context.Background(), DB_URL)
 	if err != nil {
-		return nil, err
+		log.Fatalf("DB init error: %v", err)
 	}
 
 	// 接続確認
 	if err := DB.Ping(context.Background()); err != nil {
-		return nil, err
+		log.Fatalf("DB init error: %v", err)
 	}
 
-	return DB, nil
+	return DB
 }

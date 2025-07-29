@@ -13,9 +13,21 @@
       <h1 class="p-header__title">Golang Twitter</h1>
       <nav class="p-header__nav">
         <ul class="p-header__nav-list">
+          {{ if .isAuthenticated }}
+          <li class="p-header__nav-item">
+            <a href="/index" class="p-header__nav-link">一覧</a>
+          </li>
+          <li class="p-header__nav-item">
+            <a href="/logout" class="p-header__nav-link">ログアウト</a>
+          </li>
+          {{ else }}
           <li class="p-header__nav-item">
             <a href="/signup" class="p-header__nav-link">新規登録</a>
           </li>
+          <li class="p-header__nav-item">
+            <a href="/login" class="p-header__nav-link">ログイン</a>
+          </li>
+          {{ end }}
         </ul>
       </nav>
     </div>

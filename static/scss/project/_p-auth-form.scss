@@ -1,0 +1,41 @@
+.p-auth-form__inner {
+  max-width: 400px;
+  margin: 0 auto;
+  padding-top: 1rem;
+}
+
+.p-auth-form__title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.p-auth-form__form {
+
+}
+
+.p-auth-form__form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.p-auth-form__form-label {
+  font-size: 0.875rem;
+  font-weight: bold;
+}
+
+.p-auth-form__form-input {
+  
+}
+
+.p-auth-form__form-error {
+  color: red;
+  font-size: 0.875rem;
+  font-weight: bold;
+}
+
+.p-auth-form__form-button {
+  width: 100%;
+  margin-top: 1rem;
+}
