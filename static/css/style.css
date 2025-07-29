@@ -109,3 +109,33 @@ address {
   width: 100%;
   margin-top: 1rem;
 }
+
+.p-index__inner {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding-top: 1rem;
+}
+
+.p-index__form-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  height: 5rem;
+}
+
+.p-index__form-button {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 5rem;
+  background-color: #00acee;
+  color: #fff;
+  margin-top: 1rem;
+}
+
+.p-index__success {
+  margin-top: 1rem;
+  color: #00acee;
+  text-align: center;
+}

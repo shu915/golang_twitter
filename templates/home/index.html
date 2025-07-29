@@ -1,8 +1,15 @@
 {{ define "home/index" }}
 {{ template "layout/header" . }}
-<div class="p-home">
-  <div class="p-home__inner l-inner">
-    <h1 class="p-home__title">ログインしました。</h1>
+<div class="p-index">
+  <div class="p-index__inner l-inner">
+    <form class="p-index__form" action="/tweets" method="post">
+      <input class="p-index__form-hidden" type="hidden" name="_csrf" value="{{ .csrf_token }}" />
+      <textarea class="p-index__form-input" type="text" name="tweet" rows="3"></textarea>
+      <button class="p-index__form-button" type="submit">ツイートする</button>
+    </form>
+    {{ if .success }}
+      <p class="p-index__success">{{ .success }}</p>
+    {{ end }}
   </div>
 </div>
 {{ template "layout/footer" . }}

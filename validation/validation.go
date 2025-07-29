@@ -24,6 +24,10 @@ type LoginRequest struct {
 	Password string `validate:"required,min=8,max=255" form:"password"`
 }
 
+type TweetRequest struct {
+	Tweet string `validate:"required,max=140" form:"tweet"`
+}
+
 func handleBasicValidation(req interface{}) []ValidationError {
 	var errors []ValidationError
 
@@ -106,6 +110,15 @@ func validatePasswordComplexity(password string) []ValidationError {
 
 func (l *LoginRequest) Validate() []ValidationError {
 	errors := handleBasicValidation(l)
+
+	if len(errors) == 0 {
+		return nil
+	}
+	return errors
+}
+
+func (t *TweetRequest) Validate() []ValidationError {
+	errors := handleBasicValidation(t)
 
 	if len(errors) == 0 {
 		return nil
