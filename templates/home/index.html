@@ -10,6 +10,13 @@
     {{ if .success }}
       <p class="p-index__success">{{ .success }}</p>
     {{ end }}
+    {{ if .errors }}
+      <ul class="p-index__errors">
+        {{ range .errors }}
+          <li>{{ .Message }}</li>
+        {{ end }}
+      </ul>
+    {{ end }}
   </div>
 </div>
 {{ template "layout/footer" . }}

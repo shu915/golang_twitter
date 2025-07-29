@@ -153,6 +153,8 @@ func getFieldNameJP(field string) string {
 		return "パスワード"
 	case "PasswordConfirm":
 		return "パスワード（確認用）"
+	case "Tweet":
+		return "ツイート"
 	default:
 		return field
 	}
