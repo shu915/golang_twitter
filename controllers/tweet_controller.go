@@ -56,5 +56,7 @@ func (s *Server) PostTweets(c *gin.Context) {
 		"csrf_token":      csrf.GetToken(c),
 		"isAuthenticated": true,
 		"success":         "ツイートしました",
+		"tweet":           tweetRequest.Tweet,
+		"userID":          userID,
 	})
 }
