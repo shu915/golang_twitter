@@ -19,7 +19,7 @@ func RegisterRoutes(router *gin.Engine, server *controllers.Server) {
 
 	authRoutes := router.Group("/")
 	authRoutes.Use(middleware.AuthMiddleware(server.RedisClient))
-	authRoutes.GET("/index", controllers.Index)
+	authRoutes.GET("/index", server.Index)
 	authRoutes.GET("/logout", server.Logout)
 	authRoutes.POST("/tweets", server.PostTweets)
 }

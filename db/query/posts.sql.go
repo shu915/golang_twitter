@@ -9,6 +9,17 @@ import (
 	"context"
 )
 
+const countPosts = `-- name: CountPosts :one
+SELECT COUNT(*) FROM posts
+`
+
+func (q *Queries) CountPosts(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countPosts)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createPost = `-- name: CreatePost :one
 INSERT INTO posts (user_id, content) VALUES ($1, $2)
 RETURNING id, user_id, content, created_at
@@ -32,11 +43,16 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 }
 
 const getPosts = `-- name: GetPosts :many
-SELECT id, user_id, content, created_at FROM posts
+SELECT id, user_id, content, created_at FROM posts ORDER BY created_at DESC LIMIT $1 OFFSET $2
 `
 
-func (q *Queries) GetPosts(ctx context.Context) ([]Post, error) {
-	rows, err := q.db.Query(ctx, getPosts)
+type GetPostsParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, error) {
+	rows, err := q.db.Query(ctx, getPosts, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
