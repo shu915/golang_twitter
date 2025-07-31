@@ -21,11 +21,7 @@ func (s *Server) PostTweets(c *gin.Context) {
 		
 		errors := tweetRequest.Validate()
 		if len(errors) > 0 {
-			c.HTML(http.StatusBadRequest, "home/index", gin.H{
-				"csrf_token": csrf.GetToken(c),
-				"errors": errors,
-				"isAuthenticated": true,
-			})
+			c.Redirect(http.StatusFound, "/index")
 			return
 		}
 
@@ -40,6 +36,6 @@ func (s *Server) PostTweets(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create post"})
 		return
 	}
-	
+
 	c.Redirect(http.StatusFound, "/index")
 }
