@@ -7,7 +7,7 @@ import (
 )
 
 func RegisterRoutes(router *gin.Engine, server *controllers.Server) {
-	router.GET("/", controllers.Home)
+	router.GET("/", server.Home)
 	router.GET("/healthcheck", controllers.HealthCheck)
 	router.GET("/signup", server.SignupPage)
 	router.POST("/signup", server.Signup)
@@ -21,4 +21,5 @@ func RegisterRoutes(router *gin.Engine, server *controllers.Server) {
 	authRoutes.Use(middleware.AuthMiddleware(server.RedisClient))
 	authRoutes.GET("/index", controllers.Index)
 	authRoutes.GET("/logout", server.Logout)
+	authRoutes.POST("/tweets", server.PostTweets)
 }

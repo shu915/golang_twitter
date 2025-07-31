@@ -24,6 +24,10 @@ type LoginRequest struct {
 	Password string `validate:"required,min=8,max=255" form:"password"`
 }
 
+type TweetRequest struct {
+	Tweet string `validate:"required,max=140" form:"tweet"`
+}
+
 func handleBasicValidation(req interface{}) []ValidationError {
 	var errors []ValidationError
 
@@ -113,6 +117,15 @@ func (l *LoginRequest) Validate() []ValidationError {
 	return errors
 }
 
+func (t *TweetRequest) Validate() []ValidationError {
+	errors := handleBasicValidation(t)
+
+	if len(errors) == 0 {
+		return nil
+	}
+	return errors
+}
+
 // getErrorMessage バリデーションエラーメッセージを日本語で返す
 func getErrorMessage(err validator.FieldError) string {
 	switch err.Tag() {
@@ -140,6 +153,8 @@ func getFieldNameJP(field string) string {
 		return "パスワード"
 	case "PasswordConfirm":
 		return "パスワード（確認用）"
+	case "Tweet":
+		return "ツイート"
 	default:
 		return field
 	}

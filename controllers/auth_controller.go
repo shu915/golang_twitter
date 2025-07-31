@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"context"
 	"errors"
 	query "golang_twitter/db/query"
 	"golang_twitter/services"
@@ -48,7 +47,7 @@ func (s *Server) Signup(c *gin.Context) {
 	}
 
 	// Emailのユニーク制約チェック
-	_, err := s.Queries.GetUserByEmail(context.Background(), req.Email)
+	_, err := s.Queries.GetUserByEmail(c.Request.Context(), req.Email)
 	if err == nil {
 		c.HTML(http.StatusBadRequest, "auth/signup", gin.H{
 			"errors": []validation.ValidationError{

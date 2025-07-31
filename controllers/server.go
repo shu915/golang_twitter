@@ -8,15 +8,15 @@ import (
 )
 
 type Server struct {
-	Router  *gin.Engine
-	Queries *query.Queries
+	Router      *gin.Engine
+	Queries     *query.Queries
 	RedisClient *redis.Client
 }
 
 func NewServer(queries *query.Queries, redisClient *redis.Client) *Server {
 	return &Server{
-		Router:  gin.Default(),
-		Queries: queries,
+		Router:      gin.Default(),
+		Queries:     queries,
 		RedisClient: redisClient,
 	}
 }
