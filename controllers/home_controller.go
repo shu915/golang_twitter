@@ -62,11 +62,17 @@ func (s *Server) Index(c *gin.Context) {
 
 	formattedPosts := make([]Post, len(posts))
 	for i, post := range posts {
+		var formattedTime string
+		if post.CreatedAt.Valid {
+			formattedTime = post.CreatedAt.Time.Format("2006-01-02 15:04:05")
+		} else {
+			formattedTime = "不明"
+		}
 		formattedPosts[i] = Post{
 			ID:                 post.ID,
 			Content:            post.Content,
 			UserID:             post.UserID,
-			FormattedCreatedAt: post.CreatedAt.Time.Format("2006-01-02 15:04:05"),
+			FormattedCreatedAt: formattedTime,
 		}
 	}
 
