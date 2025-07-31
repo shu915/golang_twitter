@@ -4,7 +4,6 @@ import (
 	query "golang_twitter/db/query"
 	validation "golang_twitter/validation"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/utrack/gin-csrf"
@@ -31,18 +30,9 @@ func (s *Server) PostTweets(c *gin.Context) {
 			return
 		}
 
-	userIDStr, ok := c.Get("userID")
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
+	userID := c.GetInt("userID")
 
-	userID, err := strconv.Atoi(userIDStr.(string))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID"})
-		return
-	}
-	_, err = s.Queries.CreatePost(c.Request.Context(), query.CreatePostParams{
+	_, err := s.Queries.CreatePost(c.Request.Context(), query.CreatePostParams{
 		UserID:  int32(userID),
 		Content: tweetRequest.Tweet,
 	})
