@@ -13,7 +13,7 @@ func AuthMiddleware(redisClient *redis.Client) gin.HandlerFunc {
     return func(c *gin.Context) {
         sessionID, err := c.Cookie("session_id") // UUIDが入ってるクッキー名
         if err != nil {
-            log.Printf("Error retrieving user ID: %v", err)
+            log.Printf("Error retrieving session cookie: %v", err)
             c.Redirect(http.StatusFound, "/login")
             c.Abort()
             return
