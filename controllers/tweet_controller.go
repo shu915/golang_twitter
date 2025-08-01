@@ -4,7 +4,6 @@ import (
 	query "golang_twitter/db/query"
 	validation "golang_twitter/validation"
 	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/utrack/gin-csrf"
 )
@@ -22,11 +21,7 @@ func (s *Server) PostTweets(c *gin.Context) {
 		
 		errors := tweetRequest.Validate()
 		if len(errors) > 0 {
-			c.HTML(http.StatusBadRequest, "home/index", gin.H{
-				"csrf_token": csrf.GetToken(c),
-				"errors": errors,
-				"isAuthenticated": true,
-			})
+			c.Redirect(http.StatusFound, "/index")
 			return
 		}
 
@@ -42,11 +37,5 @@ func (s *Server) PostTweets(c *gin.Context) {
 		return
 	}
 
-	c.HTML(http.StatusOK, "home/index", gin.H{
-		"csrf_token":      csrf.GetToken(c),
-		"isAuthenticated": true,
-		"success":         "ツイートしました",
-		"tweet":           tweetRequest.Tweet,
-		"userID":          userID,
-	})
+	c.Redirect(http.StatusFound, "/index")
 }

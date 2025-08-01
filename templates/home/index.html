@@ -2,21 +2,44 @@
 {{ template "layout/header" . }}
 <div class="p-index">
   <div class="p-index__inner l-inner">
-    <form class="p-index__form" action="/tweets" method="post">
-      <input class="p-index__form-hidden" type="hidden" name="_csrf" value="{{ .csrf_token }}" />
-      <textarea class="p-index__form-input" name="tweet" rows="3" placeholder="いまどうしてる？" maxlength="140"></textarea>
-      <button class="p-index__form-button" type="submit">ツイートする</button>
-    </form>
-    {{ if .success }}
-      <p class="p-index__success">{{ .success }}</p>
-    {{ end }}
-    {{ if .errors }}
-      <ul class="p-index__errors">
+    <div class="p-index__form-wrap">
+
+      <form class="p-index__form" action="/tweets" method="post">
+        <input class="p-index__form-hidden" type="hidden" name="_csrf" value="{{ .csrf_token }}" />
+        <textarea class="p-index__form-input" name="tweet" rows="3" placeholder="いまどうしてる？" maxlength="140"></textarea>
+        <button class="p-index__form-button" type="submit">ツイートする</button>
+      </form>
+      {{ if .success }}
+      <p class="p-index__form-success">{{ .success }}</p>
+      {{ end }}
+      {{ if .errors }}
+      <ul class="p-index__form-errors">
         {{ range .errors }}
-          <li>{{ .Message }}</li>
+        <li>{{ .Message }}</li>
         {{ end }}
       </ul>
-    {{ end }}
+      {{ end }}
+    </div>
+    <div class="p-index__posts">
+      {{ range .posts }}
+      <div class="p-index__post">
+        <p class="p-index__post-content">{{ .Content }}</p>
+        <div class="p-index__post-info">
+          <p class="p-index__post-user_id">ユーザーID:{{ .UserID }}</p>
+          <p class="p-index__post-created_at">投稿日時:{{ .FormattedCreatedAt }}</p>
+        </div>
+      </div>
+      {{ end }}
+    </div>
+    <div class="p-index__pagination">
+      {{ if .hasPreviousPage }}
+      <a href="/index?page={{ .previousPage }}" class="p-index__pagination-link">前のページ</a>
+      {{ end }}
+      <span class="p-index__pagination-current">{{ .currentPage }}</span>
+      {{ if .hasNextPage }}
+      <a href="/index?page={{ .nextPage }}" class="p-index__pagination-link">次のページ</a>
+      {{ end }}
+    </div>
   </div>
 </div>
 {{ template "layout/footer" . }}
